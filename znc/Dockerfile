@@ -1,18 +1,13 @@
-FROM theocf/debian:latest
+FROM theocf/debian:stretch
+
+ARG SSL_GID
 
 RUN apt-get update && \
     apt-get install -y znc
 
-RUN groupadd -g 115 ssl-cert && \
-    groupadd -g 574 znc && \
-    useradd -u 574 -g 574 -G ssl-cert znc && \
-    mkdir -p /home/znc/.znc && \
-    chown -R znc:znc /home/znc
+RUN groupadd -g $SSL_GID ssl-cert
 
-ADD entrypoint.sh /entrypoint.sh
-VOLUME /home/znc/.znc
-VOLUME /etc/ssl
+ADD run-in-docker /run-in-docker
 EXPOSE 4095
 
-ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
-CMD [""]
+CMD ["/run-in-docker"]

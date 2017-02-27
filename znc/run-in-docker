@@ -1,0 +1,3 @@
+#!/bin/bash
+usermod -a -G ssl-cert $RUN_USER
+sudo -u $RUN_USER -g ocf znc --foreground --datadir=/znc

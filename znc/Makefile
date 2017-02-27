@@ -1,13 +1,21 @@
-.PHONY: build interactive run
-
-build:
-	docker build -t mattmcal/znc .
-
-interactive: build
-	docker run -p 4095:4095 -v /home/z/zn/znc/.znc:/home/znc/.znc \
-		-v /etc/ssl:/etc/ssl -i -t --entrypoint=/bin/bash mattmcal/znc \
-		|| true
+.PHONY: build run
 
 run: build
-	docker run -d -p 4095:4095 -v /home/z/zn/znc/.znc:/home/znc/.znc \
-		-v /etc/ssl:/etc/ssl mattmcal/znc
+	docker run --rm -d \
+		-p 4095:4095 \
+		-v $(CURDIR)/znc:/znc \
+		-v /etc/ssl:/etc/ssl \
+		-e "RUN_USER=$(USER)" \
+		mattmcal/znc
+
+interactive: build
+	docker run --rm -it \
+		-p 4095:4095 \
+		-v $(CURDIR)/znc:/znc \
+		-v /etc/ssl:/etc/ssl \
+		mattmcal/znc /bin/bash
+
+build:
+	docker build \
+		--build-arg "SSL_GID=$(shell getent group ssl-cert | cut -d: -f3)" \
+		-t mattmcal/znc .
